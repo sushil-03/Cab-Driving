@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import tw from "tailwind-styled-components/dist/tailwind";
 import Map from "./component/Map";
 import { useRouter } from "next/router";
+import RideSelector from "./component/RideSelector";
 const Confirm = () => {
   const router = useRouter();
   const [pick, setPick] = useState();
@@ -44,15 +45,23 @@ const Confirm = () => {
   return (
     <Wrapper>
       <Map pick={pick} drop={drop}></Map>
-      <RideContainer></RideContainer>
+      <RideContainer>
+        <RideSelector />
+        <ConfirmButtonContainer>
+          <ConfirmButton>Confirm Travel</ConfirmButton>
+        </ConfirmButtonContainer>
+      </RideContainer>
     </Wrapper>
   );
 };
 
 export default Confirm;
+const ConfirmButtonContainer = tw.div`
+border-t-2`;
 const RideContainer = tw.div`
-flex-1
+flex-1 flex flex-col
 `;
 const Wrapper = tw.div`
 flex h-screen w-screen flex-col
 `;
+const ConfirmButton = tw.div` bg-black text-white text-center text-xl py-3 m-4 rounded  border-t-2 border-gray-600`;

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import tw from "tailwind-styled-components/dist/tailwind";
 import Map from "./component/Map";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import RideSelector from "./component/RideSelector";
 const Confirm = () => {
@@ -44,9 +45,12 @@ const Confirm = () => {
 
   return (
     <Wrapper>
+      <Link href="/search">
+        <BackButton src="/left-arrow.png" onClick />
+      </Link>
       <Map pick={pick} drop={drop}></Map>
       <RideContainer>
-        <RideSelector />
+        <RideSelector pick={pick} drop={drop} />
         <ConfirmButtonContainer>
           <ConfirmButton>Confirm Travel</ConfirmButton>
         </ConfirmButtonContainer>
@@ -56,12 +60,15 @@ const Confirm = () => {
 };
 
 export default Confirm;
+
+const BackButton = tw.img`
+h-10 w-10 absolute text-black  z-20 m-2 font-bold ml-4 rounded-full bg-white p-2 shadow`;
 const ConfirmButtonContainer = tw.div`
 border-t-2`;
 const RideContainer = tw.div`
 flex-1 flex flex-col
 `;
 const Wrapper = tw.div`
-flex h-screen w-screen flex-col
+flex h-screen w-screen flex-col relative
 `;
 const ConfirmButton = tw.div` bg-black text-white text-center text-xl py-3 m-4 rounded  border-t-2 border-gray-600`;

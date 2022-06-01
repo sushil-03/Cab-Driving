@@ -1,18 +1,39 @@
-import React from "react";
+import { useState, useEffect } from "react";
 import tw from "tailwind-styled-components/dist/tailwind";
-const RideSelector = () => {
+import { carList } from "../data/carList";
+const RideSelector = ({ pick, drop }) => {
+  const [duration, setDuration] = useState(0);
+  useEffect(() => {
+    if (pick && drop) {
+      console.log(pick, drop);
+      fetch(
+        `https://api.mapbox.com/directions/v5/mapbox/driving/${pick[0][0]},${pick[0][1]};${drop[0][0]},${drop[0][1]}?` +
+          new URLSearchParams({
+            access_token:
+              "pk.eyJ1Ijoic3VzaGlsZSIsImEiOiJja3IyYjh2NW0waW1yMm5yeDEwamtveG52In0.CtiyE_hQWk3oCQdvhx46dw",
+          })
+      )
+        .then((res) => res.json())
+        .then((data) => setDuration(data.routes[0].duration / 50));
+    }
+  }, [pick, drop]);
+
   return (
     <Wrapper>
       <Title>Choose a ride, or swipe up for more</Title>
       <CarList>
-        <Car>
-          <CarImage src="/bike.png"></CarImage>
-          <CarDetails>
-            <Service>Lamborgini Adventor</Service>
-            <Time>5 min away</Time>
-          </CarDetails>
-          <Price>$1</Price>
-        </Car>
+        {carList.map((car, key) => {
+          return (
+            <Car key={key}>
+              <CarImage src={car.imgUrl}></CarImage>
+              <CarDetails>
+                <Service>{car.service}</Service>
+                <Time>{car.multiplier} min away</Time>
+              </CarDetails>
+              <Price>{`₹ ` + (car.multiplier * duration).toFixed(2)}</Price>
+            </Car>
+          );
+        })}
       </CarList>
     </Wrapper>
   );
@@ -28,6 +49,6 @@ const CarImage = tw.img`
 
 w-20 h-20`;
 const Wrapper = tw.div`
-flex-1`;
+flex-1 overflow-scroll relative`;
 const Title = tw.div`text-gray-500 text-center text-xs py-2 border border`;
-const CarList = tw.div``;
+const CarList = tw.div` overflow-y-scroll`;

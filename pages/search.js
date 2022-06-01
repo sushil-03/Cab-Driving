@@ -1,7 +1,7 @@
 import tw from "tailwind-styled-components/dist/tailwind";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 const Search = () => {
   const router = useRouter();
   const [pickup, setPickUp] = useState("");

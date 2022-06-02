@@ -1,18 +1,39 @@
 import tw from "tailwind-styled-components/dist/tailwind";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Map from "./component/Map";
 import Link from "next/link";
+import { auth } from "../firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { useRouter } from "next/router";
 export default function Home() {
+  const router = useRouter();
+  const [myuser, setUser] = useState(null);
+  useEffect(() => {
+    return onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser({
+          name: user.displayName,
+          photoUrl: user.photoURL,
+        });
+      } else {
+        setUser(null);
+        router.push("/login");
+      }
+    });
+  }, []);
   return (
     <Wrapper>
       <Map id="map"></Map>
       <ActionItems>
         {/* Header Section */}
         <Header>
-          <Logo>Logo</Logo>
+          <Logo>Pahiya</Logo>
           <Profile>
-            <Name>Sushil Rawat</Name>
-            <UserImage src="/me.jpg" />
+            <Name>{myuser && myuser.name}</Name>
+            <UserImage
+              src={myuser && myuser.photoUrl}
+              onClick={() => signOut(auth)}
+            />
           </Profile>
         </Header>
 
@@ -71,7 +92,7 @@ const Wrapper = tw.div`
 const ActionItems = tw.div`
 flex-1
 `;
-const Logo = tw.div`text-bold text-5xl
+const Logo = tw.div`text-bold text-5xl p-2
 `;
 const Header = tw.div`
  p-6
@@ -86,4 +107,4 @@ const Name = tw.div`
 font-semibold text-xl
 `;
 const UserImage = tw.img`
-h-20 w-20 rounded-full border border-gray-300 p-1`;
+h-20 w-20 rounded-full border border-gray-300 p-1 cursor-pointer`;

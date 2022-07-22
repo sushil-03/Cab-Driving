@@ -1,13 +1,15 @@
 import tw from "tailwind-styled-components/dist/tailwind";
 import { useEffect, useState } from "react";
-import Map from "./component/Map";
+import Map from "../component/Map";
 import Link from "next/link";
 import { auth } from "../firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { useRouter } from "next/router";
+import Image from "next/image";
 export default function Home() {
   const router = useRouter();
   const [myuser, setUser] = useState(null);
+  const [booking, setBooking] = useState(false);
   useEffect(() => {
     return onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -20,7 +22,7 @@ export default function Home() {
         router.push("/login");
       }
     });
-  }, []);
+  }, [router]);
   return (
     <Wrapper>
       <Map id="map"></Map>
@@ -39,20 +41,36 @@ export default function Home() {
 
         {/* Action Section */}
         <ActionButtons>
-          <Link href="/search">
+          <Link href={`/search?ride=car${booking ? "&book=booked" : ""}`}>
+            {/* <Link href="/confirm"> */}
             <ActionButton>
-              <ActionButtonImage src="/bike.png" />
-              Ride
+              <ActionButtonImage src="/car.png" />4 wheeler
             </ActionButton>
           </Link>
-          <ActionButton>
-            <ActionButtonImage src="/bike.png" />
-            Wheels
-          </ActionButton>
-          <ActionButton>
-            <ActionButtonImage src="/bike.png" />
-            Booking
-          </ActionButton>
+          <Link href={`/search?ride=bike${booking ? "&book=booked" : ""}`}>
+            <ActionButton>
+              <ActionButtonImage src="/bike.png" />2 wheeler
+            </ActionButton>
+          </Link>
+
+          <div
+            className={`h-32
+          border 
+          flex-1
+          flex 
+          rounded-xl 
+          items-center justify-center
+          flex-col
+          text-lg
+          transform scal
+          hover:scale-95 transition ${
+            booking ? "bg-blue-400  " : "bg-gray-200 pt-4"
+          } `}
+            onClick={() => setBooking(!booking)}
+          >
+            <Image src="/cal.png" alt="" width={40} height={45} />
+            <p className="mt-2 p-2">Booking</p>
+          </div>
         </ActionButtons>
         {/* Input Section */}
         <InputButton>Where to?</InputButton>
@@ -80,7 +98,8 @@ items-center justify-center
 flex-col
 text-lg
 transform
-hover:scale-105 transition
+hover:scale-90 transition
+
 `;
 // ActionButton
 

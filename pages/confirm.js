@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import tw from "tailwind-styled-components/dist/tailwind";
-import Map from "./component/Map";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import RideSelector from "./component/RideSelector";
+import RideSelector from "../component/RideSelector";
+import Map from "../component/Map";
+
 const Confirm = () => {
   const router = useRouter();
   const [pick, setPick] = useState();
   const [drop, setDrop] = useState();
-  const { pickup, dropoff } = router.query;
+  const { pickup, dropoff, ride, book } = router.query;
   const getPickUpCoordinates = (pickup) => {
     fetch(
       `https://api.mapbox.com/geocoding/v5/mapbox.places/${pickup}.json?` +
@@ -38,9 +39,9 @@ const Confirm = () => {
       });
   };
   useEffect(() => {
+    // fetchSeat();
     getPickUpCoordinates(pickup);
     getDropoffCoordinates(dropoff);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pickup, dropoff]);
 
   return (
@@ -50,10 +51,7 @@ const Confirm = () => {
       </Link>
       <Map pick={pick} drop={drop}></Map>
       <RideContainer>
-        <RideSelector pick={pick} drop={drop} />
-        <ConfirmButtonContainer>
-          <ConfirmButton>Confirm Travel</ConfirmButton>
-        </ConfirmButtonContainer>
+        <RideSelector pick={pick} drop={drop} ride={ride} book={book} />
       </RideContainer>
     </Wrapper>
   );
@@ -63,12 +61,9 @@ export default Confirm;
 
 const BackButton = tw.img`
 h-10 w-10 absolute text-black  z-20 m-2 font-bold ml-4 rounded-full bg-white p-2 shadow`;
-const ConfirmButtonContainer = tw.div`
-border-t-2`;
 const RideContainer = tw.div`
-flex-1 flex flex-col
+flex-1 flex flex-col  mt-2 mx-2
 `;
 const Wrapper = tw.div`
 flex h-screen w-screen flex-col relative
 `;
-const ConfirmButton = tw.div` bg-black text-white text-center text-xl py-3 m-4 rounded  border-t-2 border-gray-600`;

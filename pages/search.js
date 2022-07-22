@@ -9,7 +9,8 @@ const Search = () => {
   const handleBack = () => {
     router.push("/");
   };
-
+  const { book, ride } = router.query;
+  console.log(router.query);
   return (
     <Wrapper>
       <ButtonContainer>
@@ -42,7 +43,7 @@ const Search = () => {
       <Link
         href={{
           pathname: "/confirm",
-          query: { pickup: pickup, dropoff: dropoff },
+          query: { pickup: pickup, dropoff: dropoff, ride: ride, book },
         }}
       >
         <Button>Confirm Locations</Button>
@@ -53,15 +54,14 @@ const Search = () => {
 
 export default Search;
 const Button = tw.button`bg-black w-4/5 mx-14 my-2 p-4 text-white text-xl overflow-hidden`;
-const StarIcon = tw.img`w-10 h-10 p-2 bg-gray-400 rounded-full`;
+const StarIcon = tw.img`w-10 h-10 p-2 bg-gray-400 rounded-full active:bg-blue-500`;
 const SavedPlaces = tw.div`flex items-center bg-white gap-2 font-semibold p-4 mt-2`;
 const PlusIcon = tw.div` text-5xl  bg-gray-200 font-extralight w-14 h-14 text-center rounded-full`;
 const InputBoxes = tw.div`
 flex flex-col gap-8 flex-1
 `;
 const Input = tw.input`
-h-10  bg-gray-300  p-2 outline-none rounded 
- `;
+h-10  bg-gray-300  p-2 outline-none rounded border hover:border-blue-500`;
 const InputContainer = tw.div`
 bg-white flex gap-4 p-2 items-center
 `;

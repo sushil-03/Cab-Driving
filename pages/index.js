@@ -10,6 +10,7 @@ export default function Home() {
   const router = useRouter();
   const [myuser, setUser] = useState(null);
   const [booking, setBooking] = useState(false);
+  const [date, setDate] = useState();
   useEffect(() => {
     return onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -19,7 +20,7 @@ export default function Home() {
         });
       } else {
         setUser(null);
-        // router.push("/login");
+        router.push("/login");
       }
     });
   }, [router]);
@@ -41,13 +42,13 @@ export default function Home() {
 
         {/* Action Section */}
         <ActionButtons>
-          <Link href={`/search?ride=car${booking ? "&book=booked" : ""}`}>
+          <Link href={`/search?ride=car${date ? `&book=${date}` : ""}`}>
             {/* <Link href="/confirm"> */}
             <ActionButton>
               <ActionButtonImage src="/car.png" />4 wheeler
             </ActionButton>
           </Link>
-          <Link href={`/search?ride=bike${booking ? "&book=booked" : ""}`}>
+          <Link href={`/search?ride=bike${date ? `&book=${date}` : ""}`}>
             <ActionButton>
               <ActionButtonImage src="/bike.png" />2 wheeler
             </ActionButton>
@@ -64,12 +65,22 @@ export default function Home() {
           text-lg
           transform scal
           hover:scale-95 transition ${
-            booking ? "bg-blue-400  " : "bg-gray-200 pt-4"
+            date ? "bg-blue-400  " : "bg-gray-200 pt-4"
           } `}
-            onClick={() => setBooking(!booking)}
+            onClick={() => setDate(0)}
           >
             <Image src="/cal.png" alt="" width={40} height={45} />
-            <p className="mt-2 p-2">Booking</p>
+            <p>Booking</p>
+            <input
+              type="date"
+              id="start"
+              name="book"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className={
+                date ? "bg-blue-400  border p-1" : "bg-gray-200 pt-4 border p-1"
+              }
+            />
           </div>
         </ActionButtons>
         {/* Input Section */}

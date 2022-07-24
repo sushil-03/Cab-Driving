@@ -10,6 +10,7 @@ export default class CustomDocument extends Document {
             rel="stylesheet"
           />
 
+          <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css" />
           <script
             defer
             src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.0.2/mapbox-gl-directions.js"

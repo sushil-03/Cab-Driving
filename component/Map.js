@@ -193,3 +193,7 @@ const RetryButton = tw.button`
   rounded-lg font-medium
   transition-colors duration-200
 `;
+
+const FallbackMap = tw.div`
+  flex-1 p-4
+`;

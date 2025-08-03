@@ -252,13 +252,22 @@ const Map = ({ pick, drop }) => {
         // Add animated dots along the route
         const animateRoute = () => {
           const coordinates = route.coordinates;
-          if (coordinates.length < 2) return;
+          if (coordinates.length < 2 || !map) return;
 
           // Create animated marker that moves along the route
           const animationDuration = 3000; // 3 seconds
           let start = null;
+          let animationId = null;
 
           const animate = (timestamp) => {
+            // Check if map still exists
+            if (!map || map._removed) {
+              if (animationId) {
+                cancelAnimationFrame(animationId);
+              }
+              return;
+            }
+
             if (!start) start = timestamp;
             const progress = Math.min((timestamp - start) / animationDuration, 1);
 
@@ -275,58 +284,72 @@ const Map = ({ pick, drop }) => {
               const lng = currentPoint[0] + (nextPoint[0] - currentPoint[0]) * segmentProgress;
               const lat = currentPoint[1] + (nextPoint[1] - currentPoint[1]) * segmentProgress;
 
-              // Update moving marker if it exists
-              const movingMarker = map.getSource('moving-point');
-              if (movingMarker) {
-                movingMarker.setData({
-                  type: 'Feature',
-                  geometry: {
-                    type: 'Point',
-                    coordinates: [lng, lat]
-                  }
-                });
+              // Update moving marker if it exists and map is still valid
+              try {
+                const movingMarker = map.getSource('moving-point');
+                if (movingMarker && map.isStyleLoaded()) {
+                  movingMarker.setData({
+                    type: 'Feature',
+                    geometry: {
+                      type: 'Point',
+                      coordinates: [lng, lat]
+                    }
+                  });
+                }
+              } catch (error) {
+                console.warn('Animation error:', error);
+                if (animationId) {
+                  cancelAnimationFrame(animationId);
+                }
+                return;
               }
             }
 
-            if (progress < 1) {
-              requestAnimationFrame(animate);
-            } else {
+            if (progress < 1 && map && !map._removed) {
+              animationId = requestAnimationFrame(animate);
+            } else if (map && !map._removed) {
               // Restart animation
               setTimeout(() => {
-                start = null;
-                requestAnimationFrame(animate);
+                if (map && !map._removed) {
+                  start = null;
+                  animationId = requestAnimationFrame(animate);
+                }
               }, 1000);
             }
           };
 
           // Add moving point source and layer
-          if (!map.getSource('moving-point')) {
-            map.addSource('moving-point', {
-              type: 'geojson',
-              data: {
-                type: 'Feature',
-                geometry: {
-                  type: 'Point',
-                  coordinates: coordinates[0]
+          try {
+            if (map && !map.getSource('moving-point') && map.isStyleLoaded()) {
+              map.addSource('moving-point', {
+                type: 'geojson',
+                data: {
+                  type: 'Feature',
+                  geometry: {
+                    type: 'Point',
+                    coordinates: coordinates[0]
+                  }
                 }
-              }
-            });
+              });
 
-            map.addLayer({
-              id: 'moving-point',
-              type: 'circle',
-              source: 'moving-point',
-              paint: {
-                'circle-radius': 6,
-                'circle-color': '#ffffff',
-                'circle-stroke-color': '#3b82f6',
-                'circle-stroke-width': 3,
-                'circle-opacity': 0.9
-              }
-            });
+              map.addLayer({
+                id: 'moving-point',
+                type: 'circle',
+                source: 'moving-point',
+                paint: {
+                  'circle-radius': 6,
+                  'circle-color': '#ffffff',
+                  'circle-stroke-color': '#3b82f6',
+                  'circle-stroke-width': 3,
+                  'circle-opacity': 0.9
+                }
+              });
+
+              animationId = requestAnimationFrame(animate);
+            }
+          } catch (error) {
+            console.warn('Error adding animation:', error);
           }
-
-          requestAnimationFrame(animate);
         };
 
         // Start animation after a short delay

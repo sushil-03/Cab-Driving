@@ -86,7 +86,7 @@ const Wrapper = tw.div`
 
 const ContentContainer = tw.div`
   relative z-10 w-full max-w-md
-  border border-gray-500 rounded-2xl
+  border border-gray-200 rounded-2xl
 `;
 
 const LoginCard = tw.div`

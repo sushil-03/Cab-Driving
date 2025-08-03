@@ -131,10 +131,6 @@ const LoginImage = tw.img`
   filter drop-shadow-lg
 `;
 
-const ImageGlow = tw.div`
-  hidden
-`;
-
 const ButtonContainer = tw.div`
   space-y-4 w-full
 `;

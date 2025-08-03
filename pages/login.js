@@ -92,7 +92,7 @@ const ContentContainer = tw.div`
 `;
 
 const LoginCard = tw.div`
-  bg-white backdrop-blur-sm
+  bg-white 
   border border-gray-200
   rounded-2xl shadow-lg
   p-8 space-y-6

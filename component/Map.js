@@ -169,9 +169,12 @@ const Map = ({ pick, drop }) => {
   };
 
   const addRouteToMap = async (map, pickup, dropoff) => {
-    if (!pickup || !dropoff) return;
+    if (!pickup || !dropoff || !map || map._removed) return;
 
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
       const response = await fetch(
         `https://api.mapbox.com/directions/v5/mapbox/driving/${pickup[0][0]},${pickup[0][1]};${dropoff[0][0]},${dropoff[0][1]}?` +
         new URLSearchParams({
@@ -179,8 +182,21 @@ const Map = ({ pick, drop }) => {
           geometries: 'geojson',
           overview: 'full',
           steps: true
-        })
+        }),
+        {
+          signal: controller.signal,
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        }
       );
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const data = await response.json();
 

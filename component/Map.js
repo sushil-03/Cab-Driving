@@ -73,7 +73,32 @@ const Map = ({ pick, drop }) => {
     }
   };
 
-  return <Wrapper id="map"></Wrapper>;
+  if (mapError) {
+    return (
+      <ErrorWrapper>
+        <ErrorContent>
+          <ErrorIcon>🗺️</ErrorIcon>
+          <ErrorTitle>Map Unavailable</ErrorTitle>
+          <ErrorMessage>Unable to load map. Please check your connection.</ErrorMessage>
+          <RetryButton onClick={() => window.location.reload()}>
+            Retry
+          </RetryButton>
+        </ErrorContent>
+      </ErrorWrapper>
+    );
+  }
+
+  return (
+    <Wrapper>
+      {isLoading && (
+        <LoadingOverlay>
+          <LoadingSpinner />
+          <LoadingText>Loading map...</LoadingText>
+        </LoadingOverlay>
+      )}
+      <MapContainer id="map" />
+    </Wrapper>
+  );
 };
 
 export default Map;

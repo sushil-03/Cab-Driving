@@ -99,29 +99,25 @@ const ContentContainer = tw.div`
 `;
 
 const LoginCard = tw.div`
-  bg-white/80 backdrop-blur-lg
-  border border-white/20
-  rounded-3xl shadow-2xl
-  p-8 space-y-8
-  transform transition-all duration-500 ease-out
-  hover:shadow-3xl hover:scale-105
+  bg-white backdrop-blur-sm
+  border border-gray-200
+  rounded-2xl shadow-lg
+  p-8 space-y-6
   -ml-1 flex flex-col justify-center items-center
 `;
 
 const LogoSection = tw.div`
-  text-center space-y-2
+  text-center space-y-3
 `;
 
 const Logo = tw.h1`
-  text-5xl font-black
-  bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600
-  bg-clip-text text-transparent
+  text-4xl font-bold text-gray-800
   tracking-tight
 `;
 
 const LogoSubtext = tw.p`
   text-gray-500 font-medium text-sm
-  tracking-widest uppercase
+  tracking-wide
 `;
 
 const WelcomeSection = tw.div`
@@ -129,51 +125,42 @@ const WelcomeSection = tw.div`
 `;
 
 const Title = tw.h2`
-  text-3xl font-bold text-gray-800
+  text-2xl font-semibold text-gray-800
 `;
 
 const Subtitle = tw.p`
-  text-gray-600 text-lg
+  text-gray-600 text-base
 `;
 
 const ImageContainer = tw.div`
-  relative flex justify-center py-6
+  flex justify-center py-4
 `;
 
 const LoginImage = tw.img`
-  w-48 h-48 object-contain
-  filter drop-shadow-2xl
-  transform transition-transform duration-700 ease-out
-  hover:scale-110 hover:rotate-3
+  w-40 h-40 object-contain
+  filter drop-shadow-lg
 `;
 
 const ImageGlow = tw.div`
-  absolute inset-0
-  bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-pink-400/20
-  rounded-full blur-3xl
-  animate-pulse
+  hidden
 `;
 
 const ButtonContainer = tw.div`
-  space-y-4
+  space-y-4 w-full
 `;
 
 const SignInButton = tw.button`
-  w-full bg-gradient-to-r from-blue-600 to-purple-600
-  hover:from-blue-700 hover:to-purple-700
-  text-white font-semibold py-4 px-6
-  rounded-2xl shadow-lg
+  w-full bg-blue-600
+  text-white font-medium py-3 px-6
+  rounded-lg shadow-md
   flex items-center justify-center gap-3
-  transform transition-all duration-300 ease-out
-  hover:scale-105 hover:shadow-xl
+  transition-colors duration-200
   disabled:opacity-50 disabled:cursor-not-allowed
-  disabled:hover:scale-100
-  group
+  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
 `;
 
 const GoogleIcon = tw.div`
-  w-6 h-6 bg-white rounded-full p-1
-  group-hover:rotate-12 transition-transform duration-300
+  w-5 h-5 bg-white rounded-full p-1
 `;
 
 const GoogleImage = tw.img`

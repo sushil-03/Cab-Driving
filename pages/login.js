@@ -83,15 +83,12 @@ export default Login;
 
 const Wrapper = tw.div`
   min-h-screen w-full
-  bg-gradient-to-br from-blue-50 via-white to-purple-50
+  bg-gray-50
   flex items-center justify-center p-4
-  relative overflow-hidden
 `;
 
 const GradientBackground = tw.div`
-  absolute inset-0
-  bg-gradient-to-br from-blue-400/10 via-purple-400/5 to-pink-400/10
-  animate-pulse
+  hidden
 `;
 
 const ContentContainer = tw.div`

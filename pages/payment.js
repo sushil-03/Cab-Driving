@@ -56,7 +56,7 @@ const Payment = () => {
       <header className="bg-black h-20 text-white font-bold text-3xl font-mono p-5">
         <h2>Pahiya</h2>
       </header>
-      <body className="   flex justify-center bg-gray-100 w-full h-screen">
+      <main className="   flex justify-center bg-gray-100 w-full h-screen">
         <div className="md:w-2/5 w-3/5 h-4/5  my-5 relative z-10 bg-white p-4 rounded-lg shadow-xl">
           <p className="text-center text-2xl text-gray-500 font-light">
             Checkout
@@ -157,7 +157,7 @@ const Payment = () => {
             ></Alert>
           )}
         </div>
-      </body>
+      </main>
     </div>
   );
 };

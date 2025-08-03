@@ -80,7 +80,7 @@ const Login = () => {
 export default Login;
 
 const Wrapper = tw.div`
-  min-h-screen w-full bg-gray-50
+  min-h-screen w-full 
   flex items-center justify-center p-4
 `;
 

@@ -102,6 +102,55 @@ const Map = ({ pick, drop }) => {
 };
 
 export default Map;
+
 const Wrapper = tw.div`
-    flex-1
+  flex-1 relative
+`;
+
+const MapContainer = tw.div`
+  w-full h-full
+`;
+
+const LoadingOverlay = tw.div`
+  absolute inset-0 bg-gray-100
+  flex flex-col items-center justify-center
+  z-10
+`;
+
+const LoadingSpinner = tw.div`
+  w-8 h-8 border-4 border-blue-500 border-t-transparent
+  rounded-full animate-spin mb-2
+`;
+
+const LoadingText = tw.p`
+  text-gray-600 font-medium
+`;
+
+const ErrorWrapper = tw.div`
+  flex-1 bg-gray-100
+  flex items-center justify-center
+  p-8
+`;
+
+const ErrorContent = tw.div`
+  text-center space-y-4
+  max-w-sm
+`;
+
+const ErrorIcon = tw.div`
+  text-6xl mb-4
+`;
+
+const ErrorTitle = tw.h3`
+  text-xl font-semibold text-gray-800
+`;
+
+const ErrorMessage = tw.p`
+  text-gray-600
+`;
+
+const RetryButton = tw.button`
+  bg-blue-600 text-white px-6 py-2
+  rounded-lg font-medium
+  transition-colors duration-200
 `;

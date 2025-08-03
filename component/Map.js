@@ -109,24 +109,7 @@ const Map = ({ pick, drop }) => {
   };
 
   if (mapError) {
-    return (
-      <ErrorWrapper>
-        <ErrorContent>
-          <ErrorIcon>🗺️</ErrorIcon>
-          <ErrorTitle>Map Service Offline</ErrorTitle>
-          <ErrorMessage>Using simplified map view</ErrorMessage>
-        </ErrorContent>
-        <FallbackMap>
-          <div className="bg-blue-100 rounded-lg p-4 flex items-center justify-center">
-            <div className="text-center">
-              <div className="text-4xl mb-2">📍</div>
-              <p className="text-gray-700 font-medium">Current Location</p>
-              <p className="text-sm text-gray-500">Dehradun, India</p>
-            </div>
-          </div>
-        </FallbackMap>
-      </ErrorWrapper>
-    );
+    return <SimpleMap pick={pick} drop={drop} />;
   }
 
   return (

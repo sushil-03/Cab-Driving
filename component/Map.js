@@ -1,6 +1,7 @@
 import tw from "tailwind-styled-components/dist/tailwind";
 import mapboxgl from "mapbox-gl";
 import { useEffect, useState } from "react";
+import SimpleMap from "./SimpleMap";
 
 const Map = ({ pick, drop }) => {
   const [mapError, setMapError] = useState(false);

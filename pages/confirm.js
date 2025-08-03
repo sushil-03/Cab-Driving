@@ -133,7 +133,22 @@ const Confirm = () => {
         <BackButton onClick={() => router.back()}>
           <BackIcon>←</BackIcon>
         </BackButton>
-        <HeaderTitle>Confirm Route</HeaderTitle>
+        <HeaderContent>
+          <HeaderTitle>Confirm Route</HeaderTitle>
+          {!isLoading && distance && duration && (
+            <RouteInfoHeader>
+              <RouteStatCompact>
+                <StatIconSmall>📍</StatIconSmall>
+                <StatValueSmall>{distance} km</StatValueSmall>
+              </RouteStatCompact>
+              <HeaderDivider />
+              <RouteStatCompact>
+                <StatIconSmall>⏱️</StatIconSmall>
+                <StatValueSmall>{formatTime(duration)}</StatValueSmall>
+              </RouteStatCompact>
+            </RouteInfoHeader>
+          )}
+        </HeaderContent>
         <HeaderAction>
           <DetailsButton onClick={() => setShowDetails(!showDetails)}>
             <DetailsIcon>{showDetails ? '✕' : 'ⓘ'}</DetailsIcon>
@@ -144,25 +159,6 @@ const Confirm = () => {
       {/* Map Section */}
       <MapSection>
         <Map pick={pick} drop={drop} />
-        {!isLoading && (
-          <RouteInfo>
-            <RouteInfoCard>
-              <RouteStats>
-                <StatItem>
-                  <StatIcon>📍</StatIcon>
-                  <StatLabel>Distance</StatLabel>
-                  <StatValue>{distance} km</StatValue>
-                </StatItem>
-                <StatDivider />
-                <StatItem>
-                  <StatIcon>⏱️</StatIcon>
-                  <StatLabel>Duration</StatLabel>
-                  <StatValue>{formatTime(duration)}</StatValue>
-                </StatItem>
-              </RouteStats>
-            </RouteInfoCard>
-          </RouteInfo>
-        )}
       </MapSection>
 
       {/* Route Details Modal */}

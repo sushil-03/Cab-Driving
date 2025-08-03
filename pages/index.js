@@ -113,7 +113,7 @@ export default function Home() {
                   <RideOptionTitle>Car</RideOptionTitle>
                   <RideOptionSubtitle>4-seater comfort</RideOptionSubtitle>
                 </RideOptionInfo>
-                <RideOptionPrice>₹120</RideOptionPrice>
+             
               </RideOptionCard>
             </Link>
             
@@ -126,7 +126,7 @@ export default function Home() {
                   <RideOptionTitle>Bike</RideOptionTitle>
                   <RideOptionSubtitle>Quick & affordable</RideOptionSubtitle>
                 </RideOptionInfo>
-                <RideOptionPrice>₹45</RideOptionPrice>
+                
               </RideOptionCard>
             </Link>
           </RideOptionsGrid>
@@ -291,6 +291,7 @@ const RideOptionsSection = tw.div`
 
 const RideOptionsGrid = tw.div`
   space-y-3
+  flex 
 `;
 
 const RideOptionCard = tw.div`

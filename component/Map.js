@@ -119,11 +119,11 @@ const Map = ({ pick, drop }) => {
 export default Map;
 
 const Wrapper = tw.div`
-  flex-1 relative
+  flex-1 relative min-h-0
 `;
 
 const MapContainer = tw.div`
-  w-full h-full
+  w-full h-full min-h-full
 `;
 
 const LoadingOverlay = tw.div`

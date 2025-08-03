@@ -29,7 +29,6 @@ const Login = () => {
 
   return (
     <Wrapper>
-      <GradientBackground />
       <ContentContainer>
         <LoginCard>
           <LogoSection>
@@ -86,9 +85,7 @@ const Wrapper = tw.div`
   flex items-center justify-center p-4
 `;
 
-const GradientBackground = tw.div`
-  hidden
-`;
+
 
 const ContentContainer = tw.div`
   relative z-10 w-full max-w-md

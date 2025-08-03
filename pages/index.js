@@ -11,6 +11,7 @@ export default function Home() {
   const [myuser, setUser] = useState(null);
   const [booking, setBooking] = useState(false);
   const [date, setDate] = useState();
+  const temp
   useEffect(() => {
     return onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -19,8 +20,11 @@ export default function Home() {
           photoUrl: user.photoURL,
         });
       } else {
-        setUser(null);
-        router.push("/login");
+        setUser({
+          name: "Tetsting",
+          photoUrl:"/bike.png"
+        });
+        // router.push("/login");
       }
     });
   }, [router]);

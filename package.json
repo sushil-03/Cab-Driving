@@ -15,7 +15,7 @@
     "@mapbox/mapbox-gl-directions": "^4.1.0",
     "@tabler/icons": "^1.74.0",
     "firebase": "^9.8.2",
-    "mapbox-gl": "^2.9.2",
+    "mapbox-gl": "^1.13.3",
     "next": "12.1.6",
     "radium": "^0.26.2",
     "react": "18.1.0",

@@ -354,8 +354,33 @@ const BackIcon = tw.span`
   text-xl font-bold text-gray-700
 `;
 
+const HeaderContent = tw.div`
+  flex-1 flex flex-col items-center gap-1
+`;
+
 const HeaderTitle = tw.h1`
   text-lg font-semibold text-gray-800
+`;
+
+const RouteInfoHeader = tw.div`
+  flex items-center gap-4
+  bg-blue-50 rounded-lg px-3 py-1
+`;
+
+const RouteStatCompact = tw.div`
+  flex items-center gap-1
+`;
+
+const StatIconSmall = tw.span`
+  text-sm
+`;
+
+const StatValueSmall = tw.span`
+  text-xs font-semibold text-gray-700
+`;
+
+const HeaderDivider = tw.div`
+  w-px h-3 bg-gray-300
 `;
 
 const HeaderAction = tw.div`

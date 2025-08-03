@@ -114,9 +114,262 @@ const Map = ({ pick, drop }) => {
     };
   }, [pick, drop]);
 
-  const addToMap = (map, cord) => {
-    if (mapboxgl) {
-      new mapboxgl.Marker().setLngLat([cord[0][0], cord[0][1]]).addTo(map);
+  const addPickupMarker = (map, coordinates) => {
+    if (mapboxgl && coordinates) {
+      // Create custom pickup marker element
+      const pickupElement = document.createElement('div');
+      pickupElement.className = 'pickup-marker';
+      pickupElement.style.cssText = `
+        width: 30px;
+        height: 30px;
+        background: #10b981;
+        border: 3px solid white;
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        color: white;
+        font-weight: bold;
+      `;
+      pickupElement.innerHTML = '🚗';
+
+      new mapboxgl.Marker(pickupElement)
+        .setLngLat([coordinates[0][0], coordinates[0][1]])
+        .addTo(map);
+    }
+  };
+
+  const addDropoffMarker = (map, coordinates) => {
+    if (mapboxgl && coordinates) {
+      // Create custom dropoff marker element
+      const dropoffElement = document.createElement('div');
+      dropoffElement.className = 'dropoff-marker';
+      dropoffElement.style.cssText = `
+        width: 30px;
+        height: 30px;
+        background: #ef4444;
+        border: 3px solid white;
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        color: white;
+        font-weight: bold;
+      `;
+      dropoffElement.innerHTML = '📍';
+
+      new mapboxgl.Marker(dropoffElement)
+        .setLngLat([coordinates[0][0], coordinates[0][1]])
+        .addTo(map);
+    }
+  };
+
+  const addRouteToMap = async (map, pickup, dropoff) => {
+    if (!pickup || !dropoff) return;
+
+    try {
+      const response = await fetch(
+        `https://api.mapbox.com/directions/v5/mapbox/driving/${pickup[0][0]},${pickup[0][1]};${dropoff[0][0]},${dropoff[0][1]}?` +
+        new URLSearchParams({
+          access_token: mapboxgl.accessToken,
+          geometries: 'geojson',
+          overview: 'full',
+          steps: true
+        })
+      );
+
+      const data = await response.json();
+
+      if (data.routes && data.routes[0]) {
+        const route = data.routes[0].geometry;
+
+        // Remove existing route layer if it exists
+        if (map.getLayer('route')) {
+          map.removeLayer('route');
+        }
+        if (map.getSource('route')) {
+          map.removeSource('route');
+        }
+
+        // Add route source
+        map.addSource('route', {
+          type: 'geojson',
+          data: {
+            type: 'Feature',
+            properties: {},
+            geometry: route
+          }
+        });
+
+        // Add route layer with animated style
+        map.addLayer({
+          id: 'route',
+          type: 'line',
+          source: 'route',
+          layout: {
+            'line-join': 'round',
+            'line-cap': 'round'
+          },
+          paint: {
+            'line-color': '#3b82f6',
+            'line-width': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              10, 3,
+              18, 8
+            ],
+            'line-opacity': 0.8
+          }
+        });
+
+        // Add route outline for better visibility
+        map.addLayer({
+          id: 'route-outline',
+          type: 'line',
+          source: 'route',
+          layout: {
+            'line-join': 'round',
+            'line-cap': 'round'
+          },
+          paint: {
+            'line-color': '#1e40af',
+            'line-width': [
+              'interpolate',
+              ['linear'],
+              ['zoom'],
+              10, 5,
+              18, 12
+            ],
+            'line-opacity': 0.4
+          }
+        }, 'route'); // Add below the main route layer
+
+        // Add animated dots along the route
+        const animateRoute = () => {
+          const coordinates = route.coordinates;
+          if (coordinates.length < 2) return;
+
+          // Create animated marker that moves along the route
+          const animationDuration = 3000; // 3 seconds
+          let start = null;
+
+          const animate = (timestamp) => {
+            if (!start) start = timestamp;
+            const progress = Math.min((timestamp - start) / animationDuration, 1);
+
+            // Calculate position along route
+            const totalPoints = coordinates.length;
+            const currentIndex = Math.floor(progress * (totalPoints - 1));
+
+            if (currentIndex < totalPoints - 1) {
+              const currentPoint = coordinates[currentIndex];
+              const nextPoint = coordinates[currentIndex + 1];
+              const segmentProgress = (progress * (totalPoints - 1)) - currentIndex;
+
+              // Interpolate between current and next point
+              const lng = currentPoint[0] + (nextPoint[0] - currentPoint[0]) * segmentProgress;
+              const lat = currentPoint[1] + (nextPoint[1] - currentPoint[1]) * segmentProgress;
+
+              // Update moving marker if it exists
+              const movingMarker = map.getSource('moving-point');
+              if (movingMarker) {
+                movingMarker.setData({
+                  type: 'Feature',
+                  geometry: {
+                    type: 'Point',
+                    coordinates: [lng, lat]
+                  }
+                });
+              }
+            }
+
+            if (progress < 1) {
+              requestAnimationFrame(animate);
+            } else {
+              // Restart animation
+              setTimeout(() => {
+                start = null;
+                requestAnimationFrame(animate);
+              }, 1000);
+            }
+          };
+
+          // Add moving point source and layer
+          if (!map.getSource('moving-point')) {
+            map.addSource('moving-point', {
+              type: 'geojson',
+              data: {
+                type: 'Feature',
+                geometry: {
+                  type: 'Point',
+                  coordinates: coordinates[0]
+                }
+              }
+            });
+
+            map.addLayer({
+              id: 'moving-point',
+              type: 'circle',
+              source: 'moving-point',
+              paint: {
+                'circle-radius': 6,
+                'circle-color': '#ffffff',
+                'circle-stroke-color': '#3b82f6',
+                'circle-stroke-width': 3,
+                'circle-opacity': 0.9
+              }
+            });
+          }
+
+          requestAnimationFrame(animate);
+        };
+
+        // Start animation after a short delay
+        setTimeout(animateRoute, 500);
+      }
+    } catch (error) {
+      console.error('Error fetching route:', error);
+      // Fallback: draw straight line between points
+      addStraightLineRoute(map, pickup, dropoff);
+    }
+  };
+
+  const addStraightLineRoute = (map, pickup, dropoff) => {
+    const lineData = {
+      type: 'Feature',
+      geometry: {
+        type: 'LineString',
+        coordinates: [
+          [pickup[0][0], pickup[0][1]],
+          [dropoff[0][0], dropoff[0][1]]
+        ]
+      }
+    };
+
+    if (map.getSource('fallback-route')) {
+      map.getSource('fallback-route').setData(lineData);
+    } else {
+      map.addSource('fallback-route', {
+        type: 'geojson',
+        data: lineData
+      });
+
+      map.addLayer({
+        id: 'fallback-route',
+        type: 'line',
+        source: 'fallback-route',
+        paint: {
+          'line-color': '#94a3b8',
+          'line-width': 3,
+          'line-dasharray': [2, 4],
+          'line-opacity': 0.7
+        }
+      });
     }
   };
 

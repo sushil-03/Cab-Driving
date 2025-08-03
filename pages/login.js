@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+ximport React, { useEffect, useState } from "react";
 import tw from "tailwind-styled-components/dist/tailwind";
 import { useRouter } from "next/router";
 import { signInWithPopup, onAuthStateChanged } from "firebase/auth";
@@ -83,7 +83,7 @@ export default Login;
 
 const Wrapper = tw.div`
   min-h-screen w-full
-  bg-gray-50
+
   flex items-center justify-center p-4
 `;
 

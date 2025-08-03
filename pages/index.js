@@ -77,14 +77,14 @@ export default function Home() {
           </UserProfile>
         </Header>
 
-        {/* Destination Input */}
-        // <DestinationSection>
-        //   <DestinationInput>
-        //     <SearchIcon>🔍</SearchIcon>
-        //     <Input placeholder="Where would you like to go?" />
-        //     <FavoriteIcon>⭐</FavoriteIcon>
-        //   </DestinationInput>
-        // </DestinationSection>
+        {/* Destination Input 
+        <DestinationSection>
+          <DestinationInput>
+            <SearchIcon>🔍</SearchIcon>
+            <Input placeholder="Where would you like to go?" />
+            <FavoriteIcon>⭐</FavoriteIcon>
+          </DestinationInput>
+        </DestinationSection>*/}
 
         {/* Quick Actions */}
         <QuickActionsSection>

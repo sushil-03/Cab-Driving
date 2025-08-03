@@ -297,7 +297,7 @@ const RideOptionCard = tw.div`
   bg-white border border-gray-200 rounded-xl p-4
   flex items-center gap-4
   cursor-pointer transition-all duration-200
-  shadow-sm
+  shadow-sm mr-6
 `;
 
 const RideOptionIcon = tw.div`

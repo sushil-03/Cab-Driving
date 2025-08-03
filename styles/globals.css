@@ -17,3 +17,13 @@ a {
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Mapbox specific styles */
+.mapboxgl-map {
+  font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  overflow: visible !important;
+}
+
+.mapboxgl-canvas {
+  display: block !important;
+}

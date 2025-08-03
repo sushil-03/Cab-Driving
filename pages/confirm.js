@@ -401,38 +401,7 @@ const MapSection = tw.div`
   flex-1 relative min-h-0
 `;
 
-const RouteInfo = tw.div`
-  absolute bottom-4 left-4 right-4 z-10
-`;
 
-const RouteInfoCard = tw.div`
-  bg-white/90 backdrop-blur-sm rounded-xl
-  p-4 shadow-lg border border-white/20
-`;
-
-const RouteStats = tw.div`
-  flex items-center justify-center gap-6
-`;
-
-const StatItem = tw.div`
-  flex flex-col items-center gap-1
-`;
-
-const StatIcon = tw.span`
-  text-xl
-`;
-
-const StatLabel = tw.span`
-  text-xs text-gray-600 font-medium
-`;
-
-const StatValue = tw.span`
-  text-sm font-bold text-gray-800
-`;
-
-const StatDivider = tw.div`
-  w-px h-8 bg-gray-300
-`;
 
 const DetailsModal = tw.div`
   fixed inset-0 bg-black/30 z-50

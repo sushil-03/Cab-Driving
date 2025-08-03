@@ -43,7 +43,6 @@ const Login = () => {
 
           <ImageContainer>
             <LoginImage src="/login.png" alt="Login illustration" />
-            <ImageGlow />
           </ImageContainer>
 
           <ButtonContainer>

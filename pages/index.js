@@ -78,13 +78,13 @@ export default function Home() {
         </Header>
 
         {/* Destination Input */}
-        <DestinationSection>
-          <DestinationInput>
-            <SearchIcon>🔍</SearchIcon>
-            <Input placeholder="Where would you like to go?" />
-            <FavoriteIcon>⭐</FavoriteIcon>
-          </DestinationInput>
-        </DestinationSection>
+        // <DestinationSection>
+        //   <DestinationInput>
+        //     <SearchIcon>🔍</SearchIcon>
+        //     <Input placeholder="Where would you like to go?" />
+        //     <FavoriteIcon>⭐</FavoriteIcon>
+        //   </DestinationInput>
+        // </DestinationSection>
 
         {/* Quick Actions */}
         <QuickActionsSection>

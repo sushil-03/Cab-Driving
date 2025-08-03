@@ -51,6 +51,7 @@ const Map = ({ pick, drop }) => {
           // Add error handling for map load
           map.on('error', (e) => {
             console.warn('Map error:', e);
+            setMapError(true);
             setIsLoading(false);
           });
 

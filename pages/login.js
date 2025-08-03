@@ -81,18 +81,16 @@ const Login = () => {
 export default Login;
 
 const Wrapper = tw.div`
-  min-h-screen w-full
+  min-h-screen w-full bg-gray-50
   flex items-center justify-center p-4
 `;
-
-
 
 const ContentContainer = tw.div`
   relative z-10 w-full max-w-md
 `;
 
 const LoginCard = tw.div`
-  bg-white 
+  bg-white
   border border-gray-200
   rounded-2xl shadow-lg
   p-8 space-y-6

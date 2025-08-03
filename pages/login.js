@@ -105,6 +105,7 @@ const LoginCard = tw.div`
   p-8 space-y-8
   transform transition-all duration-500 ease-out
   hover:shadow-3xl hover:scale-105
+  -ml-1 flex flex-col justify-center items-center
 `;
 
 const LogoSection = tw.div`

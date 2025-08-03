@@ -179,32 +179,32 @@ const SetupAddress = () => {
           </AddressSection>
         )}
 
-        {savedAddresses.home && (
-          <SavedAddressesSection>
-            <SavedTitle>Saved Addresses:</SavedTitle>
-            <SavedAddressCard>
-              <SavedAddressIcon>🏠</SavedAddressIcon>
-              <SavedAddressInfo>
-                <SavedAddressLabel>Home</SavedAddressLabel>
-                <SavedAddressText>
-                  {savedAddresses.home.address}
-                </SavedAddressText>
-              </SavedAddressInfo>
-            </SavedAddressCard>
+        <SavedAddressesSection>
+          <SavedTitle>Saved Addresses:</SavedTitle>
+          <SavedAddressCard>
+            <SavedAddressIcon>🏠</SavedAddressIcon>
+            <SavedAddressInfo>
+              <SavedAddressLabel>Home</SavedAddressLabel>
+              <SavedAddressText>
+                {savedAddresses.home
+                  ? savedAddresses.home.address
+                  : "No home address saved"}
+              </SavedAddressText>
+            </SavedAddressInfo>
+          </SavedAddressCard>
 
-            {savedAddresses.office && (
-              <SavedAddressCard>
-                <SavedAddressIcon>🏢</SavedAddressIcon>
-                <SavedAddressInfo>
-                  <SavedAddressLabel>Office</SavedAddressLabel>
-                  <SavedAddressText>
-                    {savedAddresses.office.address}
-                  </SavedAddressText>
-                </SavedAddressInfo>
-              </SavedAddressCard>
-            )}
-          </SavedAddressesSection>
-        )}
+          <SavedAddressCard>
+            <SavedAddressIcon>🏢</SavedAddressIcon>
+            <SavedAddressInfo>
+              <SavedAddressLabel>Office</SavedAddressLabel>
+              <SavedAddressText>
+                {savedAddresses.office
+                  ? savedAddresses.office.address
+                  : "No office address saved"}
+              </SavedAddressText>
+            </SavedAddressInfo>
+          </SavedAddressCard>
+        </SavedAddressesSection>
       </BottomSheet>
     </Container>
   );

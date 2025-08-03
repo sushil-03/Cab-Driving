@@ -636,7 +636,7 @@ const Wrapper = tw.div`
 
 const MapContainer = tw.div`
   w-full h-full
-  ${(props) => (props.size === "large" ? "min-h-[70vh]" : "min-h-full")}
+  ${(props) => (props.size === "large" ? "min-h-[70vh]" : "min-h-[40vh]")}
 `;
 
 const LoadingOverlay = tw.div`

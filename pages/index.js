@@ -10,11 +10,7 @@ import Image from "next/image";
 export default function Home() {
   const router = useRouter();
   const [myuser, setUser] = useState(null);
-  const [booking, setBooking] = useState(false);
   const [date, setDate] = useState("");
-  const [currentLocation, setCurrentLocation] = useState("Getting location...");
-  const [locationError, setLocationError] = useState(null);
-  const [currentCoordinates, setCurrentCoordinates] = useState(null);
 
   useEffect(() => {
     return onAuthStateChanged(auth, (user) => {
@@ -29,83 +25,6 @@ export default function Home() {
       }
     });
   }, [router]);
-
-  useEffect(() => {
-    // Get actual current location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-
-          // Store coordinates for map
-          setCurrentCoordinates([longitude, latitude]); // Mapbox uses [lng, lat] format
-
-          try {
-            // Try to get address using Nominatim (OpenStreetMap) - free service
-            const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
-            );
-
-            if (response.ok) {
-              const data = await response.json();
-              if (data.display_name) {
-                // Extract a shorter, more readable address
-                const addressParts = data.display_name.split(", ");
-                const shortAddress = addressParts.slice(0, 3).join(", ");
-                setCurrentLocation(shortAddress);
-              } else {
-                setCurrentLocation(
-                  `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
-                );
-              }
-            } else {
-              // Fallback to coordinates if API fails
-              setCurrentLocation(
-                `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
-              );
-            }
-          } catch (error) {
-            console.error("Error getting address:", error);
-            // Fallback to coordinates
-            setCurrentLocation(
-              `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
-            );
-          }
-        },
-        (error) => {
-          console.error("Geolocation error:", error);
-          let errorMessage = "Location unavailable";
-
-          switch (error.code) {
-            case error.PERMISSION_DENIED:
-              errorMessage =
-                "Location access denied. Please enable location in your browser settings.";
-              break;
-            case error.POSITION_UNAVAILABLE:
-              errorMessage = "Location information unavailable.";
-              break;
-            case error.TIMEOUT:
-              errorMessage = "Location request timed out.";
-              break;
-            default:
-              errorMessage = "Unable to get your location.";
-              break;
-          }
-
-          setLocationError(errorMessage);
-          setCurrentLocation("Location unavailable");
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 300000, // 5 minutes
-        }
-      );
-    } else {
-      setLocationError("Geolocation not supported");
-      setCurrentLocation("Location not supported");
-    }
-  }, []);
 
   const quickBookingOptions = [
     {
@@ -154,6 +73,9 @@ export default function Home() {
       }
     }
     console.log("savedAddress-----", savedAddress);
+    if (!savedAddress) {
+      router.push(`/setup-address?type=${option.text.toLowerCase()}`);
+    }
 
     // Navigate to search page with the destination
     const destination = savedAddress
@@ -168,6 +90,8 @@ export default function Home() {
       searchParams.append("book", date);
     }
 
+    console.log("destination-----", destination);
+    console.log("searchParams-----", searchParams);
     router.push(`/search?${searchParams.toString()}`);
   };
 
@@ -176,76 +100,19 @@ export default function Home() {
     router.push(`/setup-address?type=${option.text.toLowerCase()}`);
   };
 
-  const requestLocation = () => {
-    // Clear previous error
-    setLocationError(null);
-    setCurrentLocation("Getting location...");
-
-    // Request location again
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-          setCurrentCoordinates([longitude, latitude]);
-
-          try {
-            const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
-            );
-
-            if (response.ok) {
-              const data = await response.json();
-              if (data.display_name) {
-                const addressParts = data.display_name.split(", ");
-                const shortAddress = addressParts.slice(0, 3).join(", ");
-                setCurrentLocation(shortAddress);
-              } else {
-                setCurrentLocation(
-                  `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
-                );
-              }
-            } else {
-              setCurrentLocation(
-                `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
-              );
-            }
-          } catch (error) {
-            console.error("Error getting address:", error);
-            setCurrentLocation(
-              `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
-            );
-          }
-        },
-        (error) => {
-          console.error("Geolocation error:", error);
-          let errorMessage = "Location unavailable";
-
-          switch (error.code) {
-            case error.PERMISSION_DENIED:
-              errorMessage =
-                "Location access denied. Please enable location in your browser settings.";
-              break;
-            case error.POSITION_UNAVAILABLE:
-              errorMessage = "Location information unavailable.";
-              break;
-            case error.TIMEOUT:
-              errorMessage = "Location request timed out.";
-              break;
-            default:
-              errorMessage = "Unable to get your location.";
-              break;
-          }
-
-          setLocationError(errorMessage);
-          setCurrentLocation("Location unavailable");
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 300000,
-        }
-      );
+  const checkLocationPermission = async () => {
+    if ("permissions" in navigator) {
+      try {
+        const permission = await navigator.permissions.query({
+          name: "geolocation",
+        });
+        return permission.state;
+      } catch (error) {
+        console.log("Permission API not supported");
+        return "unknown";
+      }
     }
+    return "unknown";
   };
 
   return (
@@ -253,17 +120,28 @@ export default function Home() {
       <MapContainer>
         <Map id="map" />
         <MapOverlay>
-          <LocationPinContainer>
-            <LocationPin>{locationError ? "⚠️" : "📍"}</LocationPin>
+          {/* <LocationPinContainer>
+            <LocationPin>
+              {locationError
+                ? "⚠️"
+                : currentLocation === "Getting location..."
+                ? "⏳"
+                : "📍"}
+            </LocationPin>
             <LocationText>
               {locationError ? locationError : currentLocation}
             </LocationText>
             {locationError && (
               <EnableLocationButton onClick={() => requestLocation()}>
-                Enable Location
+                {locationError.includes("HTTPS")
+                  ? "Use HTTPS"
+                  : "Enable Location"}
               </EnableLocationButton>
             )}
-          </LocationPinContainer>
+            {currentLocation === "Getting location..." && (
+              <LocationSpinner>⟳</LocationSpinner>
+            )}
+          </LocationPinContainer> */}
         </MapOverlay>
       </MapContainer>
 
@@ -433,6 +311,10 @@ const EnableLocationButton = tw.button`
   rounded text-xs font-medium
   hover:bg-blue-600 transition-colors
   ml-2
+`;
+
+const LocationSpinner = tw.span`
+  text-blue-500 text-lg animate-spin ml-2
 `;
 
 const BottomSheet = tw.div`

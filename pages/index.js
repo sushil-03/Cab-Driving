@@ -22,11 +22,8 @@ export default function Home() {
           photoUrl: user.photoURL,
         });
       } else {
-        setUser({
-          name: "Tetsting",
-          photoUrl: "/bike.png"
-        });
-        // router.push("/login");
+        setUser(null);
+        router.push("/login");
       }
     });
   }, [router]);

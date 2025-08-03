@@ -187,7 +187,7 @@ const LocationText = tw.span`
 const BottomSheet = tw.div`
   bg-white rounded-t-3xl shadow-2xl
   max-h-[70vh] overflow-y-auto
-  px-6 py-4 space-y-6
+  px-6 py-6 space-y-6
 `;
 
 const Header = tw.div`

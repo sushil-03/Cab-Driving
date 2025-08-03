@@ -8,8 +8,9 @@ const Map = ({ pick, drop }) => {
 
   useEffect(() => {
     let map;
+    let loadingTimeout;
 
-    const initializeMap = async () => {
+    const initializeMap = () => {
       try {
         if (mapboxgl && typeof window !== 'undefined') {
           mapboxgl.accessToken =
@@ -17,21 +18,32 @@ const Map = ({ pick, drop }) => {
 
           map = new mapboxgl.Map({
             container: "map",
-            style: "mapbox://styles/mapbox/light-v11", // Using a more reliable built-in style
+            style: "mapbox://styles/mapbox/streets-v11", // Back to standard streets style
             center: [78.032188, 30.316496],
             zoom: 14,
-            localIdeographFontFamily: false, // Disable local font loading to prevent font errors
+            attributionControl: false,
           });
+
+          // Set a timeout to hide loading after 3 seconds regardless
+          loadingTimeout = setTimeout(() => {
+            setIsLoading(false);
+          }, 3000);
 
           // Add error handling for map load
           map.on('error', (e) => {
             console.warn('Map error:', e);
-            setMapError(true);
+            setIsLoading(false);
           });
 
           map.on('load', () => {
+            clearTimeout(loadingTimeout);
             setIsLoading(false);
             setMapError(false);
+          });
+
+          map.on('idle', () => {
+            // Map has finished loading and rendering
+            setIsLoading(false);
           });
 
           if (pick) {
@@ -57,10 +69,13 @@ const Map = ({ pick, drop }) => {
       }
     };
 
-    initializeMap();
+    // Small delay to ensure DOM is ready
+    const initTimeout = setTimeout(initializeMap, 100);
 
     // Cleanup function
     return () => {
+      clearTimeout(initTimeout);
+      clearTimeout(loadingTimeout);
       if (map) {
         map.remove();
       }

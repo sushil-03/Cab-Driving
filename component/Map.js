@@ -59,6 +59,11 @@ const Map = ({ pick, drop }) => {
             clearTimeout(loadingTimeout);
             setIsLoading(false);
             setMapError(false);
+
+            // Add route layer after map loads
+            if (pick && drop) {
+              addRouteToMap(map, pick, drop);
+            }
           });
 
           map.on('idle', () => {
@@ -66,15 +71,22 @@ const Map = ({ pick, drop }) => {
             setIsLoading(false);
           });
 
+          // Add markers for pickup and dropoff
           if (pick) {
-            addToMap(map, pick);
+            addPickupMarker(map, pick);
           }
           if (drop) {
-            addToMap(map, drop);
+            addDropoffMarker(map, drop);
           }
+
+          // Fit bounds to show both points
           if (pick && drop) {
-            map.fitBounds([pick[0], drop[0]], {
-              padding: 60,
+            const bounds = new mapboxgl.LngLatBounds()
+              .extend(pick[0])
+              .extend(drop[0]);
+            map.fitBounds(bounds, {
+              padding: 80,
+              maxZoom: 15
             });
           }
 

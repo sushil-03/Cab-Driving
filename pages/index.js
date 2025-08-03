@@ -286,12 +286,11 @@ const QuickActionTime = tw.span`
 `;
 
 const RideOptionsSection = tw.div`
-  space-y-3
+  space-y-3 flex flex-col
 `;
 
 const RideOptionsGrid = tw.div`
-  space-y-3
-  flex 
+  flex text-left justify-start items-start mr-5 mt-3
 `;
 
 const RideOptionCard = tw.div`

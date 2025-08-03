@@ -13,15 +13,33 @@ const Map = ({ pick, drop }) => {
     const initializeMap = () => {
       try {
         if (mapboxgl && typeof window !== 'undefined') {
+          // Disable telemetry to prevent network errors
+          mapboxgl.prewarm();
+          mapboxgl.clearPrewarmedResources();
+
           mapboxgl.accessToken =
             "pk.eyJ1Ijoic3VzaGlsZSIsImEiOiJja3IyYjh2NW0waW1yMm5yeDEwamtveG52In0.CtiyE_hQWk3oCQdvhx46dw";
 
           map = new mapboxgl.Map({
             container: "map",
-            style: "mapbox://styles/mapbox/streets-v11", // Back to standard streets style
+            style: "mapbox://styles/mapbox/streets-v11",
             center: [78.032188, 30.316496],
             zoom: 14,
             attributionControl: false,
+            logoPosition: 'bottom-right',
+            refreshExpiredTiles: false,
+            maxTileCacheSize: null,
+            transformRequest: (url, resourceType) => {
+              // Handle CORS and network issues
+              if (resourceType === 'Tile' && url.startsWith('https://api.mapbox.com')) {
+                return {
+                  url: url,
+                  headers: {},
+                  credentials: 'omit'
+                };
+              }
+              return { url };
+            }
           });
 
           // Set a timeout to hide loading after 3 seconds regardless

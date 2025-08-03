@@ -49,7 +49,7 @@ const Login = () => {
             <SignInButton
               onClick={handleSignIn}
               disabled={isLoading}
-              className={isLoading ? 'loading' : ''}
+              className={isLoading ? "loading" : ""}
             >
               {isLoading ? (
                 <>
@@ -86,13 +86,12 @@ const Wrapper = tw.div`
 
 const ContentContainer = tw.div`
   relative z-10 w-full max-w-md
-  border border-gray-200 rounded-2xl
+ rounded-2xl
 `;
 
 const LoginCard = tw.div`
   bg-white
- 
-   shadow-lg
+   shadow-xl
   p-8 space-y-6
   -ml-1 flex flex-col justify-center items-center
 `;

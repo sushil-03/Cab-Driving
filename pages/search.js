@@ -14,9 +14,9 @@ const Search = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeField, setActiveField] = useState(null);
 
-  const { book, ride } = router.query;
+  const { book, ride, destination } = router.query;
 
-  // Load saved locations from localStorage
+  // Load saved locations from localStorage and handle destination parameter
   useEffect(() => {
     const loadSavedLocations = () => {
       try {
@@ -28,7 +28,24 @@ const Search = () => {
       }
     };
     loadSavedLocations();
-  }, []);
+
+    console.log("destination", destination);
+    // Handle destination parameter from quick actions
+    if (destination) {
+      // Check if destination is a saved address object
+      if (typeof destination === "string" && destination.startsWith("{")) {
+        try {
+          const addressObj = JSON.parse(destination);
+          console.log("addressObj", addressObj);
+          setDropoff(addressObj.address || destination);
+        } catch (error) {
+          setDropoff(destination);
+        }
+      } else {
+        setDropoff(destination);
+      }
+    }
+  }, [destination]);
 
   const handleBack = () => {
     router.push("/");
@@ -41,13 +58,14 @@ const Search = () => {
         from: pickup.trim(),
         to: dropoff.trim(),
         timestamp: new Date().toISOString(),
-        frequency: 1
+        frequency: 1,
       };
 
       // Check if location already exists
       const existingIndex = savedLocations.findIndex(
-        loc => loc.from.toLowerCase() === pickup.toLowerCase() && 
-               loc.to.toLowerCase() === dropoff.toLowerCase()
+        (loc) =>
+          loc.from.toLowerCase() === pickup.toLowerCase() &&
+          loc.to.toLowerCase() === dropoff.toLowerCase()
       );
 
       let updatedLocations;
@@ -67,9 +85,9 @@ const Search = () => {
   };
 
   const selectSavedLocation = (location) => {
-    if (activeField === 'pickup') {
+    if (activeField === "pickup") {
       setPickUp(location.from);
-    } else if (activeField === 'dropoff') {
+    } else if (activeField === "dropoff") {
       setDropoff(location.to);
     } else {
       setPickUp(location.from);
@@ -86,7 +104,7 @@ const Search = () => {
   };
 
   const clearField = (field) => {
-    if (field === 'pickup') {
+    if (field === "pickup") {
       setPickUp("");
     } else {
       setDropoff("");
@@ -94,17 +112,48 @@ const Search = () => {
   };
 
   const deleteSavedLocation = (id) => {
-    const updatedLocations = savedLocations.filter(loc => loc.id !== id);
+    const updatedLocations = savedLocations.filter((loc) => loc.id !== id);
     setSavedLocations(updatedLocations);
     localStorage.setItem("savedLocations", JSON.stringify(updatedLocations));
   };
 
-  const quickLocations = [
-    { icon: "🏠", name: "Home", address: "123 Home Street" },
-    { icon: "🏢", name: "Office", address: "456 Business District" },
-    { icon: "🏥", name: "Hospital", address: "City General Hospital" },
-    { icon: "🏪", name: "Mall", address: "Central Shopping Mall" },
-  ];
+  const [quickLocations, setQuickLocations] = useState([
+    { icon: "🏠", name: "Home", address: "Set your home address" },
+    { icon: "🏢", name: "Office", address: "Set your office address" },
+    { icon: "🏥", name: "Hospital", address: "Nearest Hospital" },
+    { icon: "🏪", name: "Mall", address: "Shopping Mall" },
+  ]);
+
+  // Load saved addresses for quick access
+  useEffect(() => {
+    try {
+      if (typeof window !== "undefined") {
+        const savedAddresses =
+          JSON.parse(localStorage.getItem("savedAddresses")) || {};
+
+        const updatedQuickLocations = quickLocations.map((location) => {
+          if (location.name === "Home" && savedAddresses.home) {
+            return {
+              ...location,
+              address: savedAddresses.home.address,
+              coordinates: savedAddresses.home.coordinates,
+            };
+          } else if (location.name === "Office" && savedAddresses.office) {
+            return {
+              ...location,
+              address: savedAddresses.office.address,
+              coordinates: savedAddresses.office.coordinates,
+            };
+          }
+          return location;
+        });
+
+        setQuickLocations(updatedQuickLocations);
+      }
+    } catch (error) {
+      console.error("Error loading saved addresses:", error);
+    }
+  }, []);
 
   return (
     <Container>
@@ -135,14 +184,14 @@ const Search = () => {
                 onChange={(e) => setPickUp(e.target.value)}
                 onFocus={() => {
                   setIsFromFocused(true);
-                  setActiveField('pickup');
+                  setActiveField("pickup");
                   setShowSuggestions(true);
                 }}
                 onBlur={() => setTimeout(() => setIsFromFocused(false), 200)}
                 focused={isFromFocused}
               />
               {pickup && (
-                <ClearButton onClick={() => clearField('pickup')}>
+                <ClearButton onClick={() => clearField("pickup")}>
                   ×
                 </ClearButton>
               )}
@@ -156,14 +205,14 @@ const Search = () => {
                 onChange={(e) => setDropoff(e.target.value)}
                 onFocus={() => {
                   setIsToFocused(true);
-                  setActiveField('dropoff');
+                  setActiveField("dropoff");
                   setShowSuggestions(true);
                 }}
                 onBlur={() => setTimeout(() => setIsToFocused(false), 200)}
                 focused={isToFocused}
               />
               {dropoff && (
-                <ClearButton onClick={() => clearField('dropoff')}>
+                <ClearButton onClick={() => clearField("dropoff")}>
                   ×
                 </ClearButton>
               )}
@@ -188,12 +237,12 @@ const Search = () => {
         <SectionTitle>Quick Access</SectionTitle>
         <QuickLocationGrid>
           {quickLocations.map((location, index) => (
-            <QuickLocationCard 
+            <QuickLocationCard
               key={index}
               onClick={() => {
-                if (activeField === 'pickup') {
+                if (activeField === "pickup") {
                   setPickUp(location.address);
-                } else if (activeField === 'dropoff') {
+                } else if (activeField === "dropoff") {
                   setDropoff(location.address);
                 } else {
                   setDropoff(location.address);
@@ -220,7 +269,7 @@ const Search = () => {
           </SectionHeader>
           <SavedLocationsList>
             {savedLocations.map((location) => (
-              <SavedLocationCard 
+              <SavedLocationCard
                 key={location.id}
                 onClick={() => selectSavedLocation(location)}
               >
@@ -232,11 +281,16 @@ const Search = () => {
                     <RouteToText>{location.to}</RouteToText>
                   </SavedLocationRoute>
                   <SavedLocationMeta>
-                    <FrequencyBadge>Used {location.frequency} time{location.frequency > 1 ? 's' : ''}</FrequencyBadge>
-                    <TimestampText>{new Date(location.timestamp).toLocaleDateString()}</TimestampText>
+                    <FrequencyBadge>
+                      Used {location.frequency} time
+                      {location.frequency > 1 ? "s" : ""}
+                    </FrequencyBadge>
+                    <TimestampText>
+                      {new Date(location.timestamp).toLocaleDateString()}
+                    </TimestampText>
                   </SavedLocationMeta>
                 </SavedLocationDetails>
-                <DeleteButton 
+                <DeleteButton
                   onClick={(e) => {
                     e.stopPropagation();
                     deleteSavedLocation(location.id);
@@ -256,17 +310,19 @@ const Search = () => {
           <SuggestionsCard>
             <SuggestionsHeader>
               <SuggestionsTitle>Recent Locations</SuggestionsTitle>
-              <CloseButton onClick={() => setShowSuggestions(false)}>×</CloseButton>
+              <CloseButton onClick={() => setShowSuggestions(false)}>
+                ×
+              </CloseButton>
             </SuggestionsHeader>
             <SuggestionsList>
               {savedLocations.slice(0, 5).map((location) => (
-                <SuggestionItem 
+                <SuggestionItem
                   key={location.id}
                   onClick={() => selectSavedLocation(location)}
                 >
                   <SuggestionIcon>🕐</SuggestionIcon>
                   <SuggestionText>
-                    {activeField === 'pickup' ? location.from : location.to}
+                    {activeField === "pickup" ? location.from : location.to}
                   </SuggestionText>
                 </SuggestionItem>
               ))}
@@ -285,7 +341,9 @@ const Search = () => {
         >
           <ConfirmButton disabled={!pickup || !dropoff}>
             <ConfirmButtonText>
-              {!pickup || !dropoff ? 'Enter both locations' : 'Confirm Locations'}
+              {!pickup || !dropoff
+                ? "Enter both locations"
+                : "Confirm Locations"}
             </ConfirmButtonText>
             <ConfirmButtonIcon>→</ConfirmButtonIcon>
           </ConfirmButton>
@@ -373,7 +431,7 @@ const LocationInput = tw.input`
   transition-all duration-200
   focus:border-blue-500 focus:bg-white focus:outline-none
   placeholder-gray-400
-  ${(props) => props.focused ? 'border-blue-500 bg-white shadow-sm' : ''}
+  ${(props) => (props.focused ? "border-blue-500 bg-white shadow-sm" : "")}
 `;
 
 const ClearButton = tw.button`

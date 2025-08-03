@@ -13,6 +13,8 @@ export default function Home() {
   const [booking, setBooking] = useState(false);
   const [date, setDate] = useState("");
   const [currentLocation, setCurrentLocation] = useState("Getting location...");
+  const [locationError, setLocationError] = useState(null);
+  const [currentCoordinates, setCurrentCoordinates] = useState(null);
 
   useEffect(() => {
     return onAuthStateChanged(auth, (user) => {
@@ -29,18 +31,222 @@ export default function Home() {
   }, [router]);
 
   useEffect(() => {
-    // Simulate getting current location
-    setTimeout(() => {
-      setCurrentLocation("Current Location");
-    }, 2000);
+    // Get actual current location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+
+          // Store coordinates for map
+          setCurrentCoordinates([longitude, latitude]); // Mapbox uses [lng, lat] format
+
+          try {
+            // Try to get address using Nominatim (OpenStreetMap) - free service
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
+            );
+
+            if (response.ok) {
+              const data = await response.json();
+              if (data.display_name) {
+                // Extract a shorter, more readable address
+                const addressParts = data.display_name.split(", ");
+                const shortAddress = addressParts.slice(0, 3).join(", ");
+                setCurrentLocation(shortAddress);
+              } else {
+                setCurrentLocation(
+                  `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
+                );
+              }
+            } else {
+              // Fallback to coordinates if API fails
+              setCurrentLocation(
+                `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
+              );
+            }
+          } catch (error) {
+            console.error("Error getting address:", error);
+            // Fallback to coordinates
+            setCurrentLocation(
+              `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
+            );
+          }
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          let errorMessage = "Location unavailable";
+
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage =
+                "Location access denied. Please enable location in your browser settings.";
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = "Location information unavailable.";
+              break;
+            case error.TIMEOUT:
+              errorMessage = "Location request timed out.";
+              break;
+            default:
+              errorMessage = "Unable to get your location.";
+              break;
+          }
+
+          setLocationError(errorMessage);
+          setCurrentLocation("Location unavailable");
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000, // 5 minutes
+        }
+      );
+    } else {
+      setLocationError("Geolocation not supported");
+      setCurrentLocation("Location not supported");
+    }
   }, []);
 
   const quickBookingOptions = [
-    { icon: "🏠", text: "Home", time: "5 min" },
-    { icon: "🏢", text: "Office", time: "12 min" },
-    { icon: "🏪", text: "Mall", time: "8 min" },
-    { icon: "🏥", text: "Hospital", time: "15 min" }
+    {
+      icon: "🏠",
+      text: "Home",
+      time: "5 min",
+      destination: "Home",
+      coordinates: null, // Will be set from saved locations or current location
+    },
+    {
+      icon: "🏢",
+      text: "Office",
+      time: "12 min",
+      destination: "Office",
+      coordinates: null,
+    },
+    {
+      icon: "🏪",
+      text: "Mall",
+      time: "8 min",
+      destination: "Shopping Mall",
+      coordinates: null,
+    },
+    {
+      icon: "🏥",
+      text: "Hospital",
+      time: "15 min",
+      destination: "Hospital",
+      coordinates: null,
+    },
   ];
+
+  const handleQuickDestination = (option) => {
+    // Check if user has saved addresses for Home/Office
+    let savedAddress = null;
+
+    if (option.text === "Home" || option.text === "Office") {
+      try {
+        if (typeof window !== "undefined") {
+          const savedAddresses =
+            JSON.parse(localStorage.getItem("savedAddresses")) || {};
+          savedAddress = savedAddresses[option.text.toLowerCase()];
+        }
+      } catch (error) {
+        console.error("Error loading saved addresses:", error);
+      }
+    }
+    console.log("savedAddress-----", savedAddress);
+
+    // Navigate to search page with the destination
+    const destination = savedAddress
+      ? savedAddress.address
+      : option.destination;
+    const searchParams = new URLSearchParams({
+      destination: destination,
+      ride: "car", // Default to car ride
+    });
+
+    if (date) {
+      searchParams.append("book", date);
+    }
+
+    router.push(`/search?${searchParams.toString()}`);
+  };
+
+  const handleSetupAddress = (option) => {
+    // Navigate to setup address page
+    router.push(`/setup-address?type=${option.text.toLowerCase()}`);
+  };
+
+  const requestLocation = () => {
+    // Clear previous error
+    setLocationError(null);
+    setCurrentLocation("Getting location...");
+
+    // Request location again
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          setCurrentCoordinates([longitude, latitude]);
+
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
+            );
+
+            if (response.ok) {
+              const data = await response.json();
+              if (data.display_name) {
+                const addressParts = data.display_name.split(", ");
+                const shortAddress = addressParts.slice(0, 3).join(", ");
+                setCurrentLocation(shortAddress);
+              } else {
+                setCurrentLocation(
+                  `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
+                );
+              }
+            } else {
+              setCurrentLocation(
+                `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
+              );
+            }
+          } catch (error) {
+            console.error("Error getting address:", error);
+            setCurrentLocation(
+              `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
+            );
+          }
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          let errorMessage = "Location unavailable";
+
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage =
+                "Location access denied. Please enable location in your browser settings.";
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = "Location information unavailable.";
+              break;
+            case error.TIMEOUT:
+              errorMessage = "Location request timed out.";
+              break;
+            default:
+              errorMessage = "Unable to get your location.";
+              break;
+          }
+
+          setLocationError(errorMessage);
+          setCurrentLocation("Location unavailable");
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000,
+        }
+      );
+    }
+  };
 
   return (
     <AppContainer>
@@ -48,12 +254,19 @@ export default function Home() {
         <Map id="map" />
         <MapOverlay>
           <LocationPinContainer>
-            <LocationPin>📍</LocationPin>
-            <LocationText>{currentLocation}</LocationText>
+            <LocationPin>{locationError ? "⚠️" : "📍"}</LocationPin>
+            <LocationText>
+              {locationError ? locationError : currentLocation}
+            </LocationText>
+            {locationError && (
+              <EnableLocationButton onClick={() => requestLocation()}>
+                Enable Location
+              </EnableLocationButton>
+            )}
           </LocationPinContainer>
         </MapOverlay>
       </MapContainer>
-      
+
       <BottomSheet>
         {/* Header Section */}
         <Header>
@@ -63,7 +276,7 @@ export default function Home() {
           </BrandSection>
           <UserProfile>
             <UserInfo>
-              <UserName>Hi, {myuser?.name || 'Guest'}</UserName>
+              <UserName>Hi, {myuser?.name || "Guest"}</UserName>
               <UserStatus>Available for rides</UserStatus>
             </UserInfo>
             <UserAvatar
@@ -87,13 +300,49 @@ export default function Home() {
         <QuickActionsSection>
           <SectionTitle>Quick Destinations</SectionTitle>
           <QuickActionsGrid>
-            {quickBookingOptions.map((option, index) => (
-              <QuickActionCard key={index}>
-                <QuickActionIcon>{option.icon}</QuickActionIcon>
-                <QuickActionText>{option.text}</QuickActionText>
-                <QuickActionTime>{option.time}</QuickActionTime>
-              </QuickActionCard>
-            ))}
+            {quickBookingOptions.map((option, index) => {
+              // Check if address is saved for Home/Office
+              let isSaved = false;
+              if (option.text === "Home" || option.text === "Office") {
+                try {
+                  if (typeof window !== "undefined") {
+                    const savedAddresses =
+                      JSON.parse(localStorage.getItem("savedAddresses")) || {};
+                    isSaved = !!savedAddresses[option.text.toLowerCase()];
+                  }
+                } catch (error) {
+                  console.error("Error checking saved addresses:", error);
+                }
+              }
+
+              return (
+                <QuickActionCard
+                  key={index}
+                  onClick={() => handleQuickDestination(option)}
+                  title={
+                    option.text === "Home" || option.text === "Office"
+                      ? `Click to book ride, long press to set address`
+                      : ""
+                  }
+                >
+                  <QuickActionIcon>{option.icon}</QuickActionIcon>
+                  <QuickActionText>{option.text}</QuickActionText>
+                  <QuickActionTime>{option.time}</QuickActionTime>
+                  {isSaved && <SavedIndicator>✓</SavedIndicator>}
+                  {(option.text === "Home" || option.text === "Office") &&
+                    !isSaved && (
+                      <SetupButton
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSetupAddress(option);
+                        }}
+                      >
+                        Set
+                      </SetupButton>
+                    )}
+                </QuickActionCard>
+              );
+            })}
           </QuickActionsGrid>
         </QuickActionsSection>
 
@@ -110,10 +359,9 @@ export default function Home() {
                   <RideOptionTitle>Car</RideOptionTitle>
                   <RideOptionSubtitle>4-seater comfort</RideOptionSubtitle>
                 </RideOptionInfo>
-             
               </RideOptionCard>
             </Link>
-            
+
             <Link href={`/search?ride=bike${date ? `&book=${date}` : ""}`}>
               <RideOptionCard>
                 <RideOptionIcon>
@@ -123,7 +371,6 @@ export default function Home() {
                   <RideOptionTitle>Bike</RideOptionTitle>
                   <RideOptionSubtitle>Quick & affordable</RideOptionSubtitle>
                 </RideOptionInfo>
-                
               </RideOptionCard>
             </Link>
           </RideOptionsGrid>
@@ -143,7 +390,7 @@ export default function Home() {
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                min={new Date().toISOString().split('T')[0]}
+                min={new Date().toISOString().split("T")[0]}
               />
             </DateInputContainer>
           </ScheduleCard>
@@ -179,6 +426,13 @@ const LocationPin = tw.span`
 
 const LocationText = tw.span`
   font-medium text-gray-800 text-sm
+`;
+
+const EnableLocationButton = tw.button`
+  bg-blue-500 text-white px-3 py-1
+  rounded text-xs font-medium
+  hover:bg-blue-600 transition-colors
+  ml-2
 `;
 
 const BottomSheet = tw.div`
@@ -267,7 +521,8 @@ const QuickActionCard = tw.div`
   bg-gray-50 rounded-lg p-3
   flex flex-col items-center gap-1
   cursor-pointer border border-gray-200
-  transition-all duration-200
+  transition-all duration-200 hover:bg-gray-100
+  hover:shadow-md relative
 `;
 
 const QuickActionIcon = tw.span`
@@ -280,6 +535,20 @@ const QuickActionText = tw.span`
 
 const QuickActionTime = tw.span`
   text-xs text-gray-500
+`;
+
+const SavedIndicator = tw.span`
+  absolute -top-1 -right-1
+  w-4 h-4 bg-green-500 text-white
+  rounded-full text-xs flex items-center justify-center
+  font-bold
+`;
+
+const SetupButton = tw.button`
+  absolute -bottom-1 -right-1
+  bg-blue-500 text-white px-2 py-1
+  rounded text-xs font-medium
+  hover:bg-blue-600 transition-colors
 `;
 
 const RideOptionsSection = tw.div`

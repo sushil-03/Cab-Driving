@@ -14,28 +14,37 @@ const Map = ({ pick, drop }) => {
     const initializeMap = () => {
       try {
         if (mapboxgl && typeof window !== 'undefined') {
-          // Disable telemetry to prevent network errors
-          mapboxgl.prewarm();
-          mapboxgl.clearPrewarmedResources();
+          try {
+            // Disable telemetry to prevent network errors
+            if (typeof mapboxgl.prewarm === 'function') {
+              mapboxgl.prewarm();
+            }
+            if (typeof mapboxgl.clearPrewarmedResources === 'function') {
+              mapboxgl.clearPrewarmedResources();
+            }
+          } catch (e) {
+            console.warn('Telemetry cleanup failed:', e);
+          }
 
           mapboxgl.accessToken =
             "pk.eyJ1Ijoic3VzaGlsZSIsImEiOiJja3IyYjh2NW0waW1yMm5yeDEwamtveG52In0.CtiyE_hQWk3oCQdvhx46dw";
 
           map = new mapboxgl.Map({
             container: "map",
-            style: "mapbox://styles/mapbox/streets-v11",
+            style: "mapbox://styles/mapbox/light-v11", // Use light style for better performance
             center: [78.032188, 30.316496],
             zoom: 14,
             attributionControl: false,
             logoPosition: 'bottom-right',
             refreshExpiredTiles: false,
-            maxTileCacheSize: null,
+            maxTileCacheSize: 50,
+            collectResourceTiming: false, // Disable resource timing
+            crossSourceCollisions: false, // Disable collision detection for better performance
             transformRequest: (url, resourceType) => {
               // Handle CORS and network issues
-              if (resourceType === 'Tile' && url.startsWith('https://api.mapbox.com')) {
+              if (url.includes('mapbox.com')) {
                 return {
                   url: url,
-                  headers: {},
                   credentials: 'omit'
                 };
               }
